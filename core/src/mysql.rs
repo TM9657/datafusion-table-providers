@@ -188,7 +188,7 @@ impl TableProviderFactory for MySQLTableProviderFactory {
     ) -> datafusion::common::Result<Arc<dyn TableProvider>> {
         let name = cmd.name.to_string();
         let mut options = cmd.options.clone();
-        let schema: Schema = cmd.schema.as_ref().as_arrow().clone();
+        let schema: Schema = cmd.schema.as_ref().into();
 
         let indexes_option_str = options.remove("indexes");
         let unparsed_indexes: HashMap<String, IndexType> = match indexes_option_str {
@@ -355,11 +355,11 @@ impl MySQL {
 
     async fn table_exists(&self, mysql_connection: &MySQLConnection) -> bool {
         let sql = format!(
-            "SELECT EXISTS (
+            r#"SELECT EXISTS (
           SELECT 1
           FROM information_schema.tables
           WHERE table_name = '{name}'
-        )",
+        )"#,
             name = self.table_name
         );
         tracing::trace!("{sql}");
@@ -382,9 +382,8 @@ impl MySQL {
         batch: RecordBatch,
         on_conflict: Option<OnConflict>,
     ) -> Result<()> {
-        let batches = vec![batch];
         let insert_table_builder =
-            InsertBuilder::new(&TableReference::bare(self.table_name.clone()), &batches);
+            InsertBuilder::new(&TableReference::bare(self.table_name.clone()), vec![batch]);
 
         let sea_query_on_conflict =
             on_conflict.map(|oc| oc.build_sea_query_on_conflict(&self.schema));

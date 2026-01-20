@@ -219,7 +219,7 @@ impl TableProviderFactory for PostgresTableProviderFactory {
 
         let name = cmd.name.clone();
         let mut options = cmd.options.clone();
-        let schema: Schema = cmd.schema.as_ref().as_arrow().clone();
+        let schema: Schema = cmd.schema.as_ref().into();
 
         let indexes_option_str = options.remove("indexes");
         let unparsed_indexes: HashMap<String, IndexType> = match indexes_option_str {
@@ -394,12 +394,12 @@ impl Postgres {
     async fn table_exists(&self, postgres_conn: &PostgresConnection) -> bool {
         let sql = match self.table.schema() {
             Some(schema) => format!(
-                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}' AND table_schema = '{schema}')",
+                r#"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}' AND table_schema = '{schema}')"#,
                 name = self.table.table(),
                 schema = schema
             ),
             None => format!(
-                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}')",
+                r#"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}')"#,
                 name = self.table.table()
             ),
         };
@@ -419,8 +419,7 @@ impl Postgres {
         batch: RecordBatch,
         on_conflict: Option<OnConflict>,
     ) -> Result<()> {
-        let batches = vec![batch];
-        let insert_table_builder = InsertBuilder::new(&self.table, &batches);
+        let insert_table_builder = InsertBuilder::new(&self.table, vec![batch]);
 
         let sea_query_on_conflict =
             on_conflict.map(|oc| oc.build_sea_query_on_conflict(&self.schema));
@@ -440,7 +439,7 @@ impl Postgres {
     async fn delete_all_table_data(&self, transaction: &Transaction<'_>) -> Result<()> {
         transaction
             .execute(
-                format!("DELETE FROM {}", self.table.to_quoted_string()).as_str(),
+                format!(r#"DELETE FROM {}"#, self.table.to_quoted_string()).as_str(),
                 &[],
             )
             .await

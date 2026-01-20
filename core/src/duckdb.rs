@@ -417,7 +417,7 @@ impl TableProviderFactory for DuckDBTableProviderFactory {
 
         let read_pool = read_pool.with_connection_setup_queries(local_settings);
 
-        let schema: SchemaRef = Arc::new(cmd.schema.as_ref().as_arrow().clone());
+        let schema: SchemaRef = Arc::new(cmd.schema.as_ref().into());
 
         let table_definition =
             TableDefinition::new(RelationName::new(name.clone()), Arc::clone(&schema))
@@ -722,7 +722,6 @@ pub(crate) mod tests {
             constraints: Constraints::default(),
             column_defaults: HashMap::new(),
             temporary: false,
-            or_replace: false,
         };
 
         let table_provider = factory
@@ -784,7 +783,6 @@ pub(crate) mod tests {
             constraints: Constraints::default(),
             column_defaults: HashMap::new(),
             temporary: false,
-            or_replace: false,
         };
 
         let table_provider = factory
@@ -842,7 +840,6 @@ pub(crate) mod tests {
             constraints: Constraints::default(),
             column_defaults: HashMap::new(),
             temporary: false,
-            or_replace: false,
         };
 
         let table_provider = factory
@@ -898,7 +895,6 @@ pub(crate) mod tests {
             constraints: Constraints::default(),
             column_defaults: HashMap::new(),
             temporary: false,
-            or_replace: false,
         };
 
         let table_provider = factory
@@ -957,7 +953,6 @@ pub(crate) mod tests {
             constraints: Constraints::default(),
             column_defaults: HashMap::new(),
             temporary: false,
-            or_replace: false,
         };
 
         let result = factory.create(&ctx.state(), &cmd).await;

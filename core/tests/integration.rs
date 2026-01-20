@@ -14,8 +14,6 @@ mod mysql;
 mod postgres;
 #[cfg(feature = "sqlite")]
 mod sqlite;
-#[cfg(feature = "adbc")]
-mod adbc;
 
 fn container_registry() -> String {
     std::env::var("CONTAINER_REGISTRY")

@@ -28,18 +28,6 @@ let ctx = SessionContext::with_state(state);
 - Flight SQL
 - ODBC
 
-## Development
-
-During development, and especially before opening a PR, it is recommended to run:
-
-```bash
-cargo check --all-features --all
-```
-
-This verifies that all features and all crates compile without building
-binaries. It’s much faster than cargo build and avoids issues with
-native/shared library dependencies and heavy compilation.
-
 ## Examples (in Rust)
 
 Run the included examples to see how to use the table providers:
@@ -190,7 +178,6 @@ cargo run -p datafusion-table-providers --example flight-sql --features flight
 ```
 
 ### ODBC
-
 ```bash
 apt-get install unixodbc-dev libsqliteodbc
 # or
@@ -204,22 +191,18 @@ cargo run --example odbc_sqlite --features odbc
 Please see https://github.com/pacman82/odbc-api#os-x-arm--mac-m1 for reference.
 
 Steps:
-
 1. Install unixodbc and sqliteodbc by `brew install unixodbc sqliteodbc`.
 2. Find local sqliteodbc driver path by running `brew info sqliteodbc`. The path might look like `/opt/homebrew/Cellar/sqliteodbc/0.99991`.
 3. Set up odbc config file at `~/.odbcinst.ini` with your local sqliteodbc path.
-   Example config file:
-
+Example config file:
 ```
 [SQLite3]
 Description = SQLite3 ODBC Driver
 Driver      = /opt/homebrew/Cellar/sqliteodbc/0.99991/lib/libsqlite3odbc.dylib
 ```
-
 4. Test configuration by running `odbcinst -q -d -n SQLite3`. If the path is printed out correctly, then you are all set.
 
 ## Examples (in Python)
-
 1. Start a Python venv
 2. Enter into venv
 3. Inside python/ folder, run `maturin develop`.
