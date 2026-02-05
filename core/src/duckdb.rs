@@ -417,7 +417,7 @@ impl TableProviderFactory for DuckDBTableProviderFactory {
 
         let read_pool = read_pool.with_connection_setup_queries(local_settings);
 
-        let schema: SchemaRef = Arc::new(cmd.schema.as_ref().into());
+        let schema: SchemaRef = Arc::clone(cmd.schema.inner());
 
         let table_definition =
             TableDefinition::new(RelationName::new(name.clone()), Arc::clone(&schema))
@@ -715,6 +715,7 @@ pub(crate) mod tests {
             file_type: "".to_string(),
             table_partition_cols: vec![],
             if_not_exists: false,
+            or_replace: false,
             definition: None,
             order_exprs: vec![],
             unbounded: false,
@@ -776,6 +777,7 @@ pub(crate) mod tests {
             file_type: "".to_string(),
             table_partition_cols: vec![],
             if_not_exists: false,
+            or_replace: false,
             definition: None,
             order_exprs: vec![],
             unbounded: false,
@@ -833,6 +835,7 @@ pub(crate) mod tests {
             file_type: "".to_string(),
             table_partition_cols: vec![],
             if_not_exists: false,
+            or_replace: false,
             definition: None,
             order_exprs: vec![],
             unbounded: false,
@@ -888,6 +891,7 @@ pub(crate) mod tests {
             file_type: "".to_string(),
             table_partition_cols: vec![],
             if_not_exists: false,
+            or_replace: false,
             definition: None,
             order_exprs: vec![],
             unbounded: false,
@@ -946,6 +950,7 @@ pub(crate) mod tests {
             file_type: "".to_string(),
             table_partition_cols: vec![],
             if_not_exists: false,
+            or_replace: false,
             definition: None,
             order_exprs: vec![],
             unbounded: false,

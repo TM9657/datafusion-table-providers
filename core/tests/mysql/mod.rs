@@ -696,6 +696,7 @@ async fn arrow_mysql_round_trip(
         file_type: "".to_string(),
         table_partition_cols: vec![],
         if_not_exists: false,
+        or_replace: false,
         temporary: false,
         definition: None,
         order_exprs: vec![],

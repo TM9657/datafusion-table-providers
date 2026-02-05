@@ -297,7 +297,7 @@ impl TableProviderFactory for SqliteTableProviderFactory {
             )
         };
 
-        let schema: SchemaRef = Arc::new(cmd.schema.as_ref().into());
+        let schema: SchemaRef = Arc::clone(cmd.schema.inner());
         let schema: SchemaRef =
             SqliteConnection::handle_unsupported_schema(&schema, UnsupportedTypeAction::Error)
                 .map_err(|e| DataFusionError::External(e.into()))?;
@@ -759,6 +759,7 @@ pub(crate) mod tests {
             file_type: String::new(),
             table_partition_cols: vec![],
             if_not_exists: true,
+            or_replace: false,
             definition: None,
             order_exprs: vec![],
             unbounded: false,

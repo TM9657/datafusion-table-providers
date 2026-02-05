@@ -59,6 +59,7 @@ async fn test_postgres_schema_inference() {
         file_type: "".to_string(),
         table_partition_cols: vec![],
         if_not_exists: false,
+        or_replace: false,
         definition: None,
         order_exprs: vec![],
         unbounded: false,
