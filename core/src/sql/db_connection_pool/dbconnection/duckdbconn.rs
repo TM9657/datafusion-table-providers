@@ -114,7 +114,7 @@ impl DuckDBAttachments {
 
         tracing::trace!("Setting search_path to {search_path}");
 
-        conn.execute(&format!("SET search_path ='{}'", search_path), [])
+        conn.execute(&format!("SET search_path ='{search_path}'"), [])
             .context(DuckDBConnectionSnafu)?;
         Ok(search_path)
     }

@@ -405,7 +405,7 @@ impl TableManager {
             .context(super::UnableToGetSystemTimeSnafu)?
             .as_millis();
 
-        let view_name = format!("__scan_{}_{current_ts}", table_name);
+        let view_name = format!("__scan_{table_name}_{current_ts}");
         tx.register_arrow_scan_view(&view_name, &stream)
             .context(super::UnableToRegisterArrowScanViewForTableCreationSnafu)?;
 

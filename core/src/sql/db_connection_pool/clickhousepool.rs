@@ -64,7 +64,7 @@ impl ClickHouseConnectionPool {
                         "none" => client.with_compression(Compression::None),
                         other => {
                             return Err(Error::InvalidParameterError {
-                                parameter_name: format!("compression = {}", other),
+                                parameter_name: format!("compression = {other}"),
                             });
                         }
                     };
@@ -96,7 +96,7 @@ impl ClickHouseConnectionPool {
         let join_push_down = {
             let mut ctx = format!("url={}", url.unwrap_or("default"));
             if let Some(db) = database {
-                ctx.push_str(&format!(",db={}", db));
+                ctx.push_str(&format!(",db={db}"));
             }
             JoinPushDown::AllowedFor(ctx)
         };

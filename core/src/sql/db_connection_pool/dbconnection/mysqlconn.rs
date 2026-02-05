@@ -63,7 +63,7 @@ impl MySQLConnection {
                 if part.starts_with(q) && part.ends_with(q) {
                     part.to_string()
                 } else {
-                    format!("{quote}{part}{quote}", quote = q)
+                    format!("{q}{part}{q}")
                 }
             })
             .collect::<Vec<_>>()
@@ -413,10 +413,9 @@ mod tests {
                 .expect("Should extract precision and scale");
             assert_eq!(
                 precision, expected_precision,
-                "Incorrect precision for: {}",
-                data_type
+                "Incorrect precision for: {data_type}"
             );
-            assert_eq!(scale, expected_scale, "Incorrect scale for: {}", data_type);
+            assert_eq!(scale, expected_scale, "Incorrect scale for: {data_type}");
         }
     }
 }

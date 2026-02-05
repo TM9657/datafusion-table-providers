@@ -273,7 +273,7 @@ impl DuckDBSetting for MemoryLimitSetting {
     }
 
     fn format_sql_value(&self, value: &str) -> String {
-        format!("'{}'", value)
+        format!("'{value}'")
     }
 }
 
@@ -299,7 +299,7 @@ impl DuckDBSetting for TempDirectorySetting {
     }
 
     fn format_sql_value(&self, value: &str) -> String {
-        format!("'{}'", value)
+        format!("'{value}'")
     }
 }
 
@@ -362,7 +362,7 @@ mod tests {
         }
 
         fn format_sql_value(&self, value: &str) -> String {
-            format!("'{}'", value)
+            format!("'{value}'")
         }
     }
 

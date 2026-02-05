@@ -104,8 +104,7 @@ pub(crate) fn pg_data_type_to_arrow_type(
             Ok(DataType::Utf8)
         }
         _ => Err(ArrowError::ParseError(format!(
-            "Unsupported PostgreSQL type: {}",
-            pg_type
+            "Unsupported PostgreSQL type: {pg_type}"
         ))),
     }
 }

@@ -115,7 +115,7 @@ impl Drop for ContainerManager {
 }
 
 async fn stop_container(running_container: Option<RunningContainer>, port: usize) {
-    println!("Stopping Postgres container on port {}", port);
+    println!("Stopping Postgres container on port {port}");
     if let Some(running_container) = running_container {
         if let Err(e) = running_container.stop().await {
             tracing::error!("Error stopping container: {}", e);

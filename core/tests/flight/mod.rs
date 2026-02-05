@@ -74,18 +74,14 @@ fn check_header<T>(request: &Request<T>, rpc: &str, header_name: &str, expected_
     let actual_value = request
         .metadata()
         .get(header_name)
-        .unwrap_or_else(|| panic!("[{}] missing header `{}`", rpc, header_name))
+        .unwrap_or_else(|| panic!("[{rpc}] missing header `{header_name}`"))
         .to_str()
         .unwrap_or_else(|e| {
-            panic!(
-                "[{}] error parsing value for header `{}`: {:?}",
-                rpc, header_name, e
-            )
+            panic!("[{rpc}] error parsing value for header `{header_name}`: {e:?}")
         });
     assert_eq!(
         actual_value, expected_value,
-        "[{}] unexpected value for header `{}`",
-        rpc, header_name
+        "[{rpc}] unexpected value for header `{header_name}`"
     )
 }
 
