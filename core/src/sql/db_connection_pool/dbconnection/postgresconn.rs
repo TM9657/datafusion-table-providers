@@ -5,6 +5,7 @@ use std::sync::Arc;
 use crate::sql::arrow_sql_gen::postgres::rows_to_arrow;
 use crate::sql::arrow_sql_gen::postgres::schema::pg_data_type_to_arrow_type;
 use crate::sql::arrow_sql_gen::postgres::schema::ParseContext;
+use crate::sql::db_connection_pool::postgrespool::PostgresTlsMaker;
 use crate::util::handle_unsupported_type_error;
 use crate::util::schema::SchemaValidator;
 use arrow::datatypes::Field;
@@ -20,7 +21,6 @@ use datafusion::physical_plan::stream::RecordBatchStreamAdapter;
 use datafusion::sql::TableReference;
 use futures::stream;
 use futures::StreamExt;
-use postgres_native_tls::MakeTlsConnector;
 use snafu::prelude::*;
 
 use crate::UnsupportedTypeAction;
@@ -132,7 +132,7 @@ pub enum PostgresError {
 }
 
 pub struct PostgresConnection {
-    pub conn: bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+    pub conn: bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
     unsupported_type_action: UnsupportedTypeAction,
 }
 
@@ -153,7 +153,7 @@ impl SchemaValidator for PostgresConnection {
 
 impl<'a>
     DbConnection<
-        bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+        bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
         &'a (dyn ToSql + Sync),
     > for PostgresConnection
 {
@@ -169,7 +169,7 @@ impl<'a>
         &self,
     ) -> Option<
         &dyn AsyncDbConnection<
-            bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+            bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
             &'a (dyn ToSql + Sync),
         >,
     > {
@@ -180,12 +180,12 @@ impl<'a>
 #[async_trait::async_trait]
 impl<'a>
     AsyncDbConnection<
-        bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+        bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
         &'a (dyn ToSql + Sync),
     > for PostgresConnection
 {
     fn new(
-        conn: bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+        conn: bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
     ) -> Self {
         PostgresConnection {
             conn,

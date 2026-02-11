@@ -8,9 +8,9 @@ mod docker;
 mod duckdb;
 #[cfg(feature = "flight")]
 mod flight;
-#[cfg(feature = "mysql")]
+#[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
 mod mysql;
-#[cfg(feature = "postgres")]
+#[cfg(any(feature = "postgres", feature = "postgres-rustls"))]
 mod postgres;
 #[cfg(feature = "sqlite")]
 mod sqlite;

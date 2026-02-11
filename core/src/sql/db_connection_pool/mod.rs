@@ -8,11 +8,11 @@ pub mod dbconnection;
 pub mod clickhousepool;
 #[cfg(feature = "duckdb")]
 pub mod duckdbpool;
-#[cfg(feature = "mysql")]
+#[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
 pub mod mysqlpool;
 #[cfg(feature = "odbc")]
 pub mod odbcpool;
-#[cfg(feature = "postgres")]
+#[cfg(any(feature = "postgres", feature = "postgres-rustls"))]
 pub mod postgrespool;
 pub mod runtime;
 #[cfg(feature = "sqlite")]

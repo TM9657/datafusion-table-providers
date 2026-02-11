@@ -9,11 +9,11 @@ use snafu::prelude::*;
 pub mod clickhouseconn;
 #[cfg(feature = "duckdb")]
 pub mod duckdbconn;
-#[cfg(feature = "mysql")]
+#[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
 pub mod mysqlconn;
 #[cfg(feature = "odbc")]
 pub mod odbcconn;
-#[cfg(feature = "postgres")]
+#[cfg(any(feature = "postgres", feature = "postgres-rustls"))]
 pub mod postgresconn;
 #[cfg(feature = "sqlite")]
 pub mod sqliteconn;

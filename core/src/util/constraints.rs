@@ -116,10 +116,8 @@ pub(crate) mod tests {
     use std::sync::Arc;
 
     use datafusion::arrow::datatypes::SchemaRef;
-    use datafusion::{
-        common::{Constraint, Constraints},
-        parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder,
-    };
+    use datafusion::common::{Constraint, Constraints};
+    use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 
     #[tokio::test]
     async fn test_validate_batch_with_constraints() -> Result<(), Box<dyn std::error::Error>> {

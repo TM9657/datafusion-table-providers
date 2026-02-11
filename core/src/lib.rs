@@ -1,5 +1,13 @@
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
+// Ensure mysql-native-tls and mysql-rustls are not both enabled.
+// The mysql_async crate does not support having both TLS backends compiled simultaneously.
+#[cfg(all(feature = "mysql-native-tls", feature = "mysql-rustls"))]
+compile_error!(
+    "Features `mysql-native-tls` and `mysql-rustls` are mutually exclusive. \
+     Use `mysql` for native-tls (default) or `mysql-rustls` for rustls, but not both."
+);
+
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
@@ -13,11 +21,11 @@ pub mod clickhouse;
 pub mod duckdb;
 #[cfg(feature = "flight")]
 pub mod flight;
-#[cfg(feature = "mysql")]
+#[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
 pub mod mysql;
 #[cfg(feature = "odbc")]
 pub mod odbc;
-#[cfg(feature = "postgres")]
+#[cfg(any(feature = "postgres", feature = "postgres-rustls"))]
 pub mod postgres;
 #[cfg(feature = "sqlite")]
 pub mod sqlite;

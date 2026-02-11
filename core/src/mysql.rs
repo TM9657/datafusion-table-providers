@@ -47,7 +47,7 @@ pub type DynMySQLConnectionPool =
 
 pub type DynMySQLConnection = dyn DbConnection<mysql_async::Conn, &'static (dyn ToValue + Sync)>;
 
-#[cfg(feature = "mysql-federation")]
+#[cfg(any(feature = "mysql-federation", feature = "mysql-rustls-federation"))]
 pub mod federation;
 pub(crate) mod mysql_window;
 pub mod sql_table;
@@ -130,7 +130,7 @@ impl MySQLTableFactory {
                 .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?,
         );
 
-        #[cfg(feature = "mysql-federation")]
+        #[cfg(any(feature = "mysql-federation", feature = "mysql-rustls-federation"))]
         let table_provider = Arc::new(
             table_provider
                 .create_federated_table_provider()
@@ -289,7 +289,7 @@ impl TableProviderFactory for MySQLTableProviderFactory {
             .with_dialect(Arc::new(MySqlDialect {})),
         );
 
-        #[cfg(feature = "mysql-federation")]
+        #[cfg(any(feature = "mysql-federation", feature = "mysql-rustls-federation"))]
         let read_provider = Arc::new(read_provider.create_federated_table_provider()?);
         Ok(MySQLTableWriter::create(read_provider, mysql, on_conflict))
     }

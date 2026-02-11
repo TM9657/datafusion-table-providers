@@ -14,7 +14,12 @@ pub mod on_conflict;
 pub mod retriable_error;
 pub mod table_arg_replace;
 
-#[cfg(any(feature = "sqlite", feature = "duckdb", feature = "postgres"))]
+#[cfg(any(
+    feature = "sqlite",
+    feature = "duckdb",
+    feature = "postgres",
+    feature = "postgres-rustls"
+))]
 pub mod schema;
 pub mod secrets;
 pub mod test;

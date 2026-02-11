@@ -1,6 +1,7 @@
 use crate::sql::arrow_sql_gen::statement::{
     CreateTableBuilder, Error as SqlGenError, IndexBuilder, InsertBuilder,
 };
+use crate::sql::db_connection_pool::postgrespool::PostgresTlsMaker;
 use crate::sql::db_connection_pool::{
     self,
     dbconnection::{postgresconn::PostgresConnection, DbConnection},
@@ -29,7 +30,6 @@ use datafusion::{
     logical_expr::CreateExternalTable,
     sql::TableReference,
 };
-use postgres_native_tls::MakeTlsConnector;
 use snafu::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
@@ -48,12 +48,12 @@ use self::write::PostgresTableWriter;
 pub mod write;
 
 pub type DynPostgresConnectionPool = dyn DbConnectionPool<
-        bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+        bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
         &'static (dyn ToSql + Sync),
     > + Send
     + Sync;
 pub type DynPostgresConnection = dyn DbConnection<
-    bb8::PooledConnection<'static, PostgresConnectionManager<MakeTlsConnector>>,
+    bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
     &'static (dyn ToSql + Sync),
 >;
 
@@ -158,7 +158,10 @@ impl PostgresTableFactory {
                 .with_dialect(Arc::new(PostgreSqlDialect {})),
         );
 
-        #[cfg(feature = "postgres-federation")]
+        #[cfg(any(
+            feature = "postgres-federation",
+            feature = "postgres-rustls-federation"
+        ))]
         let table_provider = Arc::new(
             table_provider
                 .create_federated_table_provider()
@@ -312,7 +315,10 @@ impl TableProviderFactory for PostgresTableProviderFactory {
                 .with_dialect(Arc::new(PostgreSqlDialect {})),
         );
 
-        #[cfg(feature = "postgres-federation")]
+        #[cfg(any(
+            feature = "postgres-federation",
+            feature = "postgres-rustls-federation"
+        ))]
         let read_provider = Arc::new(read_provider.create_federated_table_provider()?);
 
         Ok(PostgresTableWriter::create(

@@ -43,9 +43,9 @@
 //! ```
 
 pub mod arrow;
-#[cfg(feature = "mysql")]
+#[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
 pub mod mysql;
-#[cfg(feature = "postgres")]
+#[cfg(any(feature = "postgres", feature = "postgres-rustls"))]
 pub mod postgres;
 #[cfg(feature = "sqlite")]
 pub mod sqlite;

@@ -68,7 +68,7 @@ impl CreateTableBuilder {
     }
 
     #[must_use]
-    #[cfg(feature = "postgres")]
+    #[cfg(any(feature = "postgres", feature = "postgres-rustls"))]
     pub fn build_postgres(self) -> Vec<String> {
         use crate::sql::arrow_sql_gen::postgres::{
             builder::TypeBuilder, get_postgres_composite_type_name,
@@ -207,7 +207,7 @@ pub fn use_json_insert_for_type<T: QueryBuilder + 'static>(
             return data_type.is_nested();
         }
     }
-    #[cfg(feature = "mysql")]
+    #[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
     {
         use std::any::Any;
         let any_builder = query_builder as &dyn Any;
