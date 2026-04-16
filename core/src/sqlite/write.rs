@@ -209,7 +209,9 @@ impl DataSink for SqliteDataSink {
                 }
 
                 if on_commit_transaction.try_recv().is_err() {
-                    return Err(rusqlite::Error::InvalidQuery);
+                    return Err(tokio_rusqlite::Error::Other(
+                        "No message to commit transaction has been received.".into(),
+                    ));
                 }
 
                 transaction.commit()?;
@@ -221,7 +223,7 @@ impl DataSink for SqliteDataSink {
             .map_err(|e| {
                 if let super::Error::UnableToInsertIntoTableAsync {
                     source:
-                        tokio_rusqlite::Error::Error(rusqlite::Error::SqliteFailure(
+                        tokio_rusqlite::Error::Rusqlite(rusqlite::Error::SqliteFailure(
                             rusqlite::ffi::Error {
                                 code: rusqlite::ffi::ErrorCode::DiskFull,
                                 ..

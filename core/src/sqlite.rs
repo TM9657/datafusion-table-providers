@@ -488,7 +488,7 @@ impl Sqlite {
             .call(move |conn| {
                 let mut stmt = conn.prepare(&sql)?;
                 let exists = stmt.query_row([], |row| row.get(0))?;
-                Ok::<bool, rusqlite::Error>(exists)
+                Ok(exists)
             })
             .await
             .unwrap_or(false)
