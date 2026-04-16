@@ -5,6 +5,8 @@ use datafusion::{
 };
 use snafu::prelude::*;
 
+#[cfg(feature = "adbc")]
+pub mod adbcconn;
 #[cfg(feature = "clickhouse")]
 pub mod clickhouseconn;
 #[cfg(feature = "duckdb")]

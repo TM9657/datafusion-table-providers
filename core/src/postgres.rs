@@ -1,7 +1,7 @@
 use crate::sql::arrow_sql_gen::statement::{
     CreateTableBuilder, Error as SqlGenError, IndexBuilder, InsertBuilder,
 };
-use crate::sql::db_connection_pool::postgrespool::PostgresTlsMaker;
+use crate::sql::db_connection_pool::dbconnection::postgresconn::PostgresPooledConnection;
 use crate::sql::db_connection_pool::{
     self,
     dbconnection::{postgresconn::PostgresConnection, DbConnection},
@@ -16,10 +16,7 @@ use arrow::{
     datatypes::{Schema, SchemaRef},
 };
 use async_trait::async_trait;
-use bb8_postgres::{
-    tokio_postgres::{types::ToSql, Transaction},
-    PostgresConnectionManager,
-};
+use bb8_postgres::tokio_postgres::{types::ToSql, Transaction};
 use datafusion::catalog::Session;
 use datafusion::sql::unparser::dialect::PostgreSqlDialect;
 use datafusion::{
@@ -47,15 +44,10 @@ use self::write::PostgresTableWriter;
 
 pub mod write;
 
-pub type DynPostgresConnectionPool = dyn DbConnectionPool<
-        bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
-        &'static (dyn ToSql + Sync),
-    > + Send
-    + Sync;
-pub type DynPostgresConnection = dyn DbConnection<
-    bb8::PooledConnection<'static, PostgresConnectionManager<PostgresTlsMaker>>,
-    &'static (dyn ToSql + Sync),
->;
+pub type DynPostgresConnectionPool =
+    dyn DbConnectionPool<PostgresPooledConnection, &'static (dyn ToSql + Sync)> + Send + Sync;
+pub type DynPostgresConnection =
+    dyn DbConnection<PostgresPooledConnection, &'static (dyn ToSql + Sync)>;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
@@ -158,10 +150,7 @@ impl PostgresTableFactory {
                 .with_dialect(Arc::new(PostgreSqlDialect {})),
         );
 
-        #[cfg(any(
-            feature = "postgres-federation",
-            feature = "postgres-rustls-federation"
-        ))]
+        #[cfg(feature = "postgres-federation")]
         let table_provider = Arc::new(
             table_provider
                 .create_federated_table_provider()
@@ -222,7 +211,7 @@ impl TableProviderFactory for PostgresTableProviderFactory {
 
         let name = cmd.name.clone();
         let mut options = cmd.options.clone();
-        let schema: Schema = cmd.schema.inner().as_ref().clone();
+        let schema: Schema = cmd.schema.as_ref().as_arrow().clone();
 
         let indexes_option_str = options.remove("indexes");
         let unparsed_indexes: HashMap<String, IndexType> = match indexes_option_str {
@@ -315,10 +304,7 @@ impl TableProviderFactory for PostgresTableProviderFactory {
                 .with_dialect(Arc::new(PostgreSqlDialect {})),
         );
 
-        #[cfg(any(
-            feature = "postgres-federation",
-            feature = "postgres-rustls-federation"
-        ))]
+        #[cfg(feature = "postgres-federation")]
         let read_provider = Arc::new(read_provider.create_federated_table_provider()?);
 
         Ok(PostgresTableWriter::create(
@@ -400,12 +386,12 @@ impl Postgres {
     async fn table_exists(&self, postgres_conn: &PostgresConnection) -> bool {
         let sql = match self.table.schema() {
             Some(schema) => format!(
-                r#"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}' AND table_schema = '{schema}')"#,
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}' AND table_schema = '{schema}')",
                 name = self.table.table(),
                 schema = schema
             ),
             None => format!(
-                r#"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}')"#,
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{name}')",
                 name = self.table.table()
             ),
         };
@@ -425,7 +411,8 @@ impl Postgres {
         batch: RecordBatch,
         on_conflict: Option<OnConflict>,
     ) -> Result<()> {
-        let insert_table_builder = InsertBuilder::new(&self.table, vec![batch]);
+        let batches = vec![batch];
+        let insert_table_builder = InsertBuilder::new(&self.table, batches);
 
         let sea_query_on_conflict =
             on_conflict.map(|oc| oc.build_sea_query_on_conflict(&self.schema));
@@ -445,7 +432,7 @@ impl Postgres {
     async fn delete_all_table_data(&self, transaction: &Transaction<'_>) -> Result<()> {
         transaction
             .execute(
-                format!(r#"DELETE FROM {}"#, self.table.to_quoted_string()).as_str(),
+                format!("DELETE FROM {}", self.table.to_quoted_string()).as_str(),
                 &[],
             )
             .await

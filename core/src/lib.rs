@@ -21,6 +21,8 @@ pub mod clickhouse;
 pub mod duckdb;
 #[cfg(feature = "flight")]
 pub mod flight;
+#[cfg(feature = "mongodb")]
+pub mod mongodb;
 #[cfg(any(feature = "mysql", feature = "mysql-rustls"))]
 pub mod mysql;
 #[cfg(feature = "odbc")]
