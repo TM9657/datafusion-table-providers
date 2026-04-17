@@ -173,6 +173,7 @@ postgres = [
 postgres-native-tls = ["dep:postgres-native-tls", "dep:native-tls", "dep:pem"]
 postgres-rustls = [
   "dep:tokio-postgres",
+  "dep:rust_decimal",
   "dep:uuid",
   "dep:bb8",
   "dep:bb8-postgres",
